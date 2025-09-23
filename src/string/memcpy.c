@@ -2,6 +2,107 @@
 #include <stdint.h>
 #include <endian.h>
 
+#if (__ARM_ARCH == 6) && __thumb__
+void __aeabi_memcpy4(void *restrict dest, const void *restrict src, size_t n);
+
+void *memcpy(void *restrict dest, const void *restrict src, size_t n) {
+	unsigned char *d = dest;
+	const unsigned char *s = src;
+
+	if (n >= 8) {
+		// Align dest
+		// If d end with
+		// 001 -> 010, 2-byte aligned
+		// 010 -> 010, no action
+		// 011 -> 100, 4-byte aligned
+		if ((unsigned)d & 0x01) {
+			*d++ = *s++;
+			n -= 1;
+		}
+		// d ends with 010 or 100 now
+		if ((unsigned)d & 0x02) {
+			*d++ = *s++;
+			*d++ = *s++;
+			n -= 2;
+		}
+		// Check src alignment after dest aligned
+		unsigned t = (unsigned)s & 0x03;
+		if (t) {
+			// src not aligned
+			// Move forward 4 bytes so we don't underflow src later
+			// n is at least 5 at this point
+			*d++ = *s++;
+			*d++ = *s++;
+			*d++ = *s++;
+			*d++ = *s++;
+			n -= 4;
+
+			if (n > 4) {
+				s -= t;
+				unsigned *sw = (unsigned *)s;
+				unsigned *dw = (unsigned *)d;
+				unsigned r = t << 3;
+				unsigned l = (4-t) << 3;
+
+				unsigned w = *sw++;
+				for (; n>=4; n-=4) {
+					unsigned w2 = *sw++;
+					w = w >> r | w2 << l;
+					*dw++ = w;
+					w = w2;
+				}
+				// For leftover bytes
+				s = (const unsigned char *)sw;
+				s -= l >> 3; //(4-t);
+				d = (unsigned char *)dw;
+			}
+		} else {
+			// src aligned
+			__aeabi_memcpy4(d, s, n);
+			return dest;
+		}
+	}
+	// Copy leftover bytes
+	if (n & 0x04) {
+		*d++ = *s++;
+		*d++ = *s++;
+		*d++ = *s++;
+		*d++ = *s++;
+	}
+	if (n & 0x02) {
+		*d++ = *s++;
+		*d++ = *s++;
+	}
+	if (n & 0x01)
+		*d++ = *s++;
+
+	return dest;
+}
+#elif (__ARM_ARCH == 7) && OPT_FOR_SIZE
+#define SS (sizeof(size_t))
+#define ALIGN (sizeof(size_t)-1)
+void *memcpy(void *restrict dest, const void *restrict src, size_t n)
+{
+        unsigned char *d = dest;
+        const unsigned char *s = src;
+
+        if (((uintptr_t)d & ALIGN) != ((uintptr_t)s & ALIGN))
+                goto misaligned;
+
+        for (; ((uintptr_t)d & ALIGN) && n; n--) *d++ = *s++;
+        if (n) {
+                size_t *wd = (void *)d;
+                const size_t *ws = (const void *)s;
+
+                for (; n>=SS; n-=SS) *wd++ = *ws++;
+                d = (void *)wd;
+                s = (const void *)ws;
+misaligned:
+                for (; n; n--) *d++ = *s++;
+        }
+        return dest;
+}
+#else
 void *memcpy(void *restrict dest, const void *restrict src, size_t n)
 {
 	unsigned char *d = dest;
@@ -122,3 +223,4 @@ void *memcpy(void *restrict dest, const void *restrict src, size_t n)
 	for (; n; n--) *d++ = *s++;
 	return dest;
 }
+#endif

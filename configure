@@ -36,6 +36,14 @@ Optional features:
   --disable-shared        inhibit building shared library [enabled]
   --disable-static        inhibit building static library [enabled]
 
+Qualcomm-specific options:
+  --quic-arm-baremetal        set ARM/AArch64 baremetal flags/defines [disabled]
+  --quic-arm-armv6m-armv5     build for ARMV6M or ARMV5 architectures [disabled]
+  --quic-arm-nofp             use optimized no floating point memset [disabled]
+  --quic-aarch64-nofp         build for aarch64 with no floating point [disabled]
+  --quic-libc-standalone      build standalone libc [disabled]
+  --quic-baremetal-uselock    build for baremetal with locking/unlocking [disabled]
+
 Some influential environment variables:
   CC                      C compiler command [detected]
   CFLAGS                  C compiler flags [-Os -pipe ...]
@@ -98,7 +106,7 @@ fi
 tryldflag () {
 printf "checking whether linker accepts %s... " "$2"
 echo "typedef int x;" > "$tmpc"
-if $CC $LDFLAGS_TRY -nostdlib -shared "$2" -o /dev/null "$tmpc" >/dev/null 2>&1 ; then
+if $CC $LDFLAGS_TRY -nostdlib "$2" -o /dev/null "$tmpc" >/dev/null 2>&1 ; then
 printf "yes\n"
 eval "$1=\"\${$1} \$2\""
 eval "$1=\${$1# }"
@@ -141,6 +149,12 @@ static=yes
 wrapper=auto
 gcc_wrapper=no
 clang_wrapper=no
+quic_arm_baremetal=no
+quic_arm_armv6m_armv5=no
+quic_arm_nofp=no
+quic_aarch64_nofp=no
+quic_libc_standalone=no
+quic_baremetal_uselock=no
 
 for arg ; do
 case "$arg" in
@@ -173,6 +187,12 @@ case "$arg" in
 --disable-wrapper|--enable-wrapper=no) wrapper=no ;;
 --enable-gcc-wrapper|--enable-gcc-wrapper=yes) wrapper=yes ; gcc_wrapper=yes ;;
 --disable-gcc-wrapper|--enable-gcc-wrapper=no) wrapper=no ;;
+--quic-arm-baremetal|--quic-arm-baremetal=yes) quic_arm_baremetal=yes ;;
+--quic-arm-armv6m-armv5|--quic-arm-armv6m-armv5=yes) quic_arm_armv6m_armv5=yes ;;
+--quic-arm-nofp|--quic-arm-nofp=yes) quic_arm_nofp=yes ;;
+--quic-aarch64-nofp|--quic-aarch64-nofp=yes) quic_aarch64_nofp=yes ;;
+--quic-libc-standalone|--quic-libc-standalone=yes) quic_libc_standalone=yes ;;
+--quic-baremetal-uselock|--quic-baremetal-uselock=yes) quic_baremetal_uselock=yes ;;
 --enable-*|--disable-*|--with-*|--without-*|--*dir=*) ;;
 --host=*|--target=*) target=${arg#*=} ;;
 --build=*) build=${arg#*=} ;;
@@ -183,6 +203,9 @@ CPPFLAGS=*) CPPFLAGS=${arg#*=} ;;
 LDFLAGS=*) LDFLAGS=${arg#*=} ;;
 CROSS_COMPILE=*) CROSS_COMPILE=${arg#*=} ;;
 LIBCC=*) LIBCC=${arg#*=} ;;
+QUIC_VARIANTS=*) QUIC_VARIANTS=${arg#*=} ;;
+QUIC_VARIANT_*_CFLAGS=*) QUIC_VARIANT_CFLAGS="$QUIC_VARIANT_CFLAGS
+$arg " ;;
 *=*) ;;
 *) build=$arg ; target=$arg ;;
 esac
@@ -250,9 +273,15 @@ fi
 #
 tryflag   CFLAGS_TRY  -Werror=unknown-warning-option
 tryflag   CFLAGS_TRY  -Werror=unused-command-line-argument
+tryflag   CFLAGS_TRY  -Werror=unsupported-option
+tryflag   CFLAGS_TRY  -Werror
+tryldflag LDFLAGS_TRY -shared
 tryflag   CFLAGS_TRY  -Werror=ignored-optimization-argument
 tryldflag LDFLAGS_TRY -Werror=unknown-warning-option
 tryldflag LDFLAGS_TRY -Werror=unused-command-line-argument
+tryldflag LDFLAGS_TRY -Werror=unsupported-option
+tryldflag LDFLAGS_TRY -Werror
+
 
 #
 # Need to know if the compiler is gcc or clang to decide which toolchain
@@ -341,7 +370,11 @@ tryflag CFLAGS_C99FSE -ffreestanding \
 || tryflag CFLAGS_C99FSE -fno-builtin
 tryflag CFLAGS_C99FSE -fexcess-precision=standard \
 || { test "$ARCH" = i386 && tryflag CFLAGS_C99FSE -ffloat-store ; }
-tryflag CFLAGS_C99FSE -frounding-math
+
+# Qualcomm-specific
+# This is a work in progress, remove frounding-math when clang firms up.
+# tryflag CFLAGS_C99FSE -frounding-math
+tryflag CFLAGS_C99FSE -fno-rounding-math
 
 #
 # We may use the may_alias attribute if __GNUC__ is defined, so
@@ -458,7 +491,7 @@ tryflag CFLAGS_AUTO -pipe
 # pointer is no longer needed for debugging.
 #
 if fnmatch '-g*|*\ -g*' "$CFLAGS_AUTO $CFLAGS" ; then :
-else 
+else
 tryflag CFLAGS_AUTO -fomit-frame-pointer
 fi
 
@@ -617,6 +650,26 @@ tryflag CFLAGS_AUTO -Wa,-mthumb
 fi
 trycppif __ARMEB__ "$t" && SUBARCH=${SUBARCH}eb
 trycppif __ARM_PCS_VFP "$t" && SUBARCH=${SUBARCH}hf
+# Qualcomm-specific code - start
+# Upstream 7068aa9 defaults -Wint-conversion to an error
+CFLAGS_AUTO="$CFLAGS_AUTO -Wno-error=int-conversion"
+CFLAGS_AUTO="${CFLAGS_AUTO# }"
+# If building for baremetal, set extra defines and flags
+if test "x$quic_arm_baremetal" = xyes ; then
+CFLAGS_AUTO="$CFLAGS_AUTO -D__QUIC_ARM_SEMIHOST -D__QUIC_BAREMETAL -D__QUIC_HAS_NO_PTHREAD -fno-zero-initialized-in-bss"
+CFLAGS_AUTO="${CFLAGS_AUTO# }"
+QUIC_ARM_BAREMETAL=yes
+shared=no
+fi
+if test "x$quic_arm_armv6m_armv5" = xyes ; then
+QUIC_ARM_ARMV6M_ARMV5=yes
+fi
+if test "x$quic_arm_nofp" = xyes ; then
+echo "here..."
+QUIC_ARM_NOFP=yes
+fi
+echo $QUIC_ARM_NOFP
+# Qualcomm-specific code - end
 # Versions of clang up until at least 3.8 have the wrong constraint codes
 # for floating point operands to inline asm. Detect this so the affected
 # source files can just disable the asm.
@@ -635,6 +688,31 @@ fi
 
 if test "$ARCH" = "aarch64" ; then
 trycppif __AARCH64EB__ "$t" && SUBARCH=${SUBARCH}_be
+# Qualcomm-specific code - start
+# Upstream 7068aa9 defaults -Wint-conversion to an error
+CFLAGS_AUTO="$CFLAGS_AUTO -Wno-error=int-conversion"
+CFLAGS_AUTO="${CFLAGS_AUTO# }"
+# If building for baremetal, set extra defines and flags
+if test "x$quic_arm_baremetal" = xyes ; then
+CFLAGS_AUTO="$CFLAGS_AUTO -D__QUIC_AARCH64_SEMIHOST -D__QUIC_BAREMETAL -D__QUIC_HAS_NO_PTHREAD  -fno-zero-initialized-in-bss"
+CFLAGS_AUTO="${CFLAGS_AUTO# }"
+QUIC_ARM_BAREMETAL=yes
+shared=no
+fi
+if test "x$quic_libc_standalone" = xyes ; then
+CFLAGS_AUTO="$CFLAGS_AUTO -D__QUIC_LIBC_STANDALONE"
+CFLAGS_AUTO="${CFLAGS_AUTO# }"
+QUIC_LIBC_STANDALONE=yes
+fi
+if test "x$quic_aarch64_nofp" = xyes ; then
+QUIC_AARCH64_NOFP=yes
+fi
+if test "x$quic_baremetal_uselock" = xyes ; then
+CFLAGS_AUTO="$CFLAGS_AUTO -D__QUIC_BAREMETAL_USELOCK"
+CFLAGS_AUTO="${CFLAGS_AUTO# }"
+QUIC_BAREMETAL_USELOCK=yes
+fi
+# Qualcomm-specific code - end
 fi
 
 if test "$ARCH" = "mips" ; then
@@ -715,6 +793,8 @@ if $CC $CFLAGS_C99FSE \
 printf "yes\n"
 else
 printf "no\n"
+echo $CC $CFLAGS_C99FSE -I./arch/$ARCH -I./include $CPPFLAGS $CFLAGS \
+  -c "$tmpc"
 fail "$0: error: unsupported long double type"
 fi
 
@@ -765,6 +845,14 @@ OPTIMIZE_GLOBS = $OPTIMIZE_GLOBS
 ALL_TOOLS = $tools
 TOOL_LIBS = $tool_libs
 ADD_CFI = $ADD_CFI
+QUIC_ARM_BAREMETAL = $QUIC_ARM_BAREMETAL
+QUIC_ARM_ARMV6M_ARMV5 = $QUIC_ARM_ARMV6M_ARMV5
+QUIC_ARM_NOFP = $QUIC_ARM_NOFP
+QUIC_AARCH64_NOFP = $QUIC_AARCH64_NOFP
+QUIC_BAREMETAL_USELOCK = $QUIC_BAREMETAL_USELOCK
+QUIC_LIBC_STANDALONE = $QUIC_LIBC_STANDALONE
+QUIC_VARIANTS = $QUIC_VARIANTS
+$QUIC_VARIANT_CFLAGS
 EOF
 test "x$static" = xno && echo "STATIC_LIBS ="
 test "x$shared" = xno && echo "SHARED_LIBS ="

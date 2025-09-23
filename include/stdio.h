@@ -21,10 +21,12 @@ extern "C" {
 
 #include <bits/alltypes.h>
 
+#ifndef NULL
 #ifdef __cplusplus
 #define NULL 0L
 #else
 #define NULL ((void*)0)
+#endif
 #endif
 
 #undef EOF
@@ -41,7 +43,11 @@ extern "C" {
 #define _IOLBF 1
 #define _IONBF 2
 
+#ifdef OPT_FOR_SIZE
+#define BUFSIZ 128
+#else
 #define BUFSIZ 1024
+#endif
 #define FILENAME_MAX 4096
 #define FOPEN_MAX 1000
 #define TMP_MAX 10000
@@ -98,6 +104,29 @@ char *gets(char *);
 
 int fputs(const char *__restrict, FILE *__restrict);
 int puts(const char *);
+
+// Qualcomm specific:
+#if defined(__arm__)
+// prints a string without appending "\n";
+int puts_nonewline(const char*);
+// Prints a decimal to stdout.
+int puts_decimal(int);
+#endif
+// END-- Qualcomm Specific
+
+// Qualcomm specific: printf for integer only formatters.
+#if defined(__arm__)
+int iprintf(const char *__restrict, ...);
+int fiprintf(FILE *__restrict, const char *__restrict, ...);
+int siprintf(char *__restrict, const char *__restrict, ...);
+int sniprintf(char *__restrict, size_t, const char *__restrict, ...);
+
+int viprintf(const char *__restrict, __isoc_va_list);
+int vfiprintf(FILE *__restrict, const char *__restrict, __isoc_va_list);
+int vsiprintf(char *__restrict, const char *__restrict, __isoc_va_list);
+int vsniprintf(char *__restrict, size_t, const char *__restrict, __isoc_va_list);
+#endif
+// END-- Qualcomm Specific
 
 int printf(const char *__restrict, ...);
 int fprintf(FILE *__restrict, const char *__restrict, ...);

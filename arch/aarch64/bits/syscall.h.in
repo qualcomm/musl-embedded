@@ -274,3 +274,33 @@
 #define __NR_pkey_alloc 289
 #define __NR_pkey_free 290
 
+// ---- Begin Qualcomm-Specific ----
+// SEMIHOST call support for AARCH64
+// https://static.docs.arm.com/100863/0200/semihosting.pdf
+#define AARCH64_SEMIHOST_Open            0x01
+#define AARCH64_SEMIHOST_Close           0x02
+#define AARCH64_SEMIHOST_WriteC          0x03
+#define AARCH64_SEMIHOST_Write0          0x04
+#define AARCH64_SEMIHOST_Write           0x05
+#define AARCH64_SEMIHOST_Read            0x06
+#define AARCH64_SEMIHOST_ReadC           0x07
+#define AARCH64_SEMIHOST_IsError         0x08
+#define AARCH64_SEMIHOST_IsTTY           0x09
+#define AARCH64_SEMIHOST_Seek            0x0A
+#define AARCH64_SEMIHOST_FLen            0x0C
+#define AARCH64_SEMIHOST_TmpNam          0x0D
+#define AARCH64_SEMIHOST_Remove          0x0E
+#define AARCH64_SEMIHOST_Rename          0x0F
+#define AARCH64_SEMIHOST_Clock           0x10
+#define AARCH64_SEMIHOST_Time            0x11
+#define AARCH64_SEMIHOST_System          0x12
+#define AARCH64_SEMIHOST_Errno           0x13
+// _sys_command_string()
+#define AARCH64_SEMIHOST_GetCmdLine      0x15
+// __user_initial_stackheap()
+#define AARCH64_SEMIHOST_HeapInfo        0x16
+// Now reserved, not to be used or implemented
+// #define AARCH64_SEMIHOST_EnterSVC        0x17
+// _sys_exit()
+#define AARCH64_SEMIHOST_ReportException 0x18
+// ---- End Qualcomm-Specific ----

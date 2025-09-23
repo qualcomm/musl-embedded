@@ -1,5 +1,12 @@
+.arch_extension fp
 .global _longjmp
 .global longjmp
+
+#ifdef VISIBILITY_HIDDEN
+.hidden _longjmp
+.hidden longjmp
+#endif
+
 .type _longjmp,%function
 .type longjmp,%function
 _longjmp:
@@ -21,4 +28,8 @@ longjmp:
 	mov x0, x1
 	cbnz x1, 1f
 	mov x0, #1
+#if defined(__ARM_FEATURE_BTI_DEFAULT)
+1:	ret
+#else
 1:	br x30
+#endif

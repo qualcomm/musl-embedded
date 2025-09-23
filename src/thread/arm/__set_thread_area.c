@@ -1,3 +1,39 @@
+#ifdef __QUIC_BAREMETAL
+__attribute__((__visibility__("hidden")))
+void __a_barrier() {
+#if __ARM_ARCH >= 6
+  __builtin_arm_dmb(0xF);
+#endif
+}
+
+__attribute__((__visibility__("hidden")))
+int __a_cas(int t, int s, volatile int *p) {
+#if __ARM_ARCH_6M__ == 1
+  // ARMv6m has no ldrex/strex, swith to dummy version.
+  // Below C code is similar to __a_cas_dummy in atomics.s.
+  int tmp = *p;
+  if (tmp == t) {
+    *p = s;
+    return 0;
+  }
+  return 1;
+#else
+  return __sync_val_compare_and_swap(p, t, s);
+#endif
+}
+
+__attribute__((__visibility__("hidden")))
+void __a_gettp() {
+  __builtin_trap();
+}
+
+int aeabi_read_tp() __attribute__((alias("__a_gettp")));
+// Pthread is unsupported in baremetal. Returning -1 forces __init_tp
+// to fail.
+int __set_thread_area(void *p) { return -1;};
+
+#else
+
 #include <stdint.h>
 #include <elf.h>
 #include "pthread_impl.h"
@@ -51,3 +87,4 @@ int __set_thread_area(void *p)
 #endif
 	return __syscall(0xf0005, p);
 }
+#endif

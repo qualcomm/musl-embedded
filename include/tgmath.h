@@ -104,6 +104,15 @@ so they can be in null pointer constants
 	__LDBLCX((x)+I) ? fun ## l (x) : \
 	fun(x) ))
 
+#ifdef __IU_ARCH__
+#define __tg_real_complex(fun, x) (__RETCAST(x)( \
+	__FLTCX(x) ? fun ## f (x) : \
+	__DBLCX(x) ? fun (x) : \
+	__LDBLCX(x) ? fun ## l (x) : \
+	__FLT(x) ? fun ## f (x) : \
+	__LDBL(x) ? fun ## l (x) : \
+	fun(x) ))
+#else
 #define __tg_real_complex(fun, x) (__RETCAST(x)( \
 	__FLTCX(x) ? c ## fun ## f (x) : \
 	__DBLCX(x) ? c ## fun (x) : \
@@ -111,6 +120,7 @@ so they can be in null pointer constants
 	__FLT(x) ? fun ## f (x) : \
 	__LDBL(x) ? fun ## l (x) : \
 	fun(x) ))
+#endif
 
 /* special cases */
 

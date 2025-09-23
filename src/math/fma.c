@@ -43,6 +43,9 @@ double fma(double x, double y, double z)
 {
 	#pragma STDC FENV_ACCESS ON
 
+	// Qualcomm-Specific
+	#pragma STDC FP_CONTRACT OFF
+
 	/* normalize so top 10bits and last bit are 0 */
 	struct num nx, ny, nz;
 	nx = normalize(x);

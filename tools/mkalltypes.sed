@@ -1,6 +1,7 @@
-/^TYPEDEF/s/TYPEDEF \(.*\) \([^ ]*\);$/#if defined(__NEED_\2) \&\& !defined(__DEFINED_\2)\
+/^TYPEDEF/s/TYPEDEF \(.*\) \([^ ]*\);$/#if defined(__NEED_\2) \&\& !defined(__DEFINED_\2) \&\& !defined(__CLANG_\U\2\E_DEFINED)\
 typedef \1 \2;\
 #define __DEFINED_\2\
+#define __CLANG_\U\2\E_DEFINED\
 #endif\
 /
 /^STRUCT/s/STRUCT * \([^ ]*\) \(.*\);$/#if defined(__NEED_struct_\1) \&\& !defined(__DEFINED_struct_\1)\

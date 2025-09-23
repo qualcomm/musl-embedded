@@ -5,6 +5,9 @@
 //         x8,        x0,    x1,    x2,   x3,  x4
 
 .global __clone
+#ifdef VISIBILITY_HIDDEN
+.hidden __clone
+#endif
 .type   __clone,%function
 __clone:
 	// align stack and save func,arg

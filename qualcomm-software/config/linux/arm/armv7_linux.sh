@@ -1,0 +1,3 @@
+# should be run from MUSL source top directory
+# ./configure --disable-wrapper wrapper CROSS_COMPILE="llvm-" CC="clang --target=arm-linux-gnueabi -fuse-ld=eld" CFLAGS="-mfloat-abi=softfp -mcpu=krait -O3 -mthumb -mfpu=vfp -mno-unaligned-access -mllvm -enable-android-compat -fno-vectorize-loops -fPIC -fno-rounding-math" LIBCC="$(clang -print-resource-dir)/lib/generic/libclang_rt.builtins-arm.a" "$@"
+./configure --disable-wrapper CROSS_COMPILE="llvm-" CC="clang --target=arm-linux-gnueabi -fuse-ld=eld" CFLAGS="-mfloat-abi=softfp -mcpu=krait -O3 -mthumb -mfpu=vfp -mno-unaligned-access -fPIC -fno-rounding-math" LIBCC="$(clang -print-resource-dir)/lib/generic/libclang_rt.builtins-arm.a" "$@"

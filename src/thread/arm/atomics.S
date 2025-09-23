@@ -1,12 +1,15 @@
 .syntax unified
 .text
 
+.section        .text.__a_barrier_dummy,"ax",%progbits
 .global __a_barrier_dummy
 .hidden __a_barrier_dummy
 .type __a_barrier_dummy,%function
 __a_barrier_dummy:
 	bx lr
 
+#ifndef __QUIC_BAREMETAL
+.section        .text.__a_barrier_oldkuser,"ax",%progbits
 .global __a_barrier_oldkuser
 .hidden __a_barrier_oldkuser
 .type __a_barrier_oldkuser,%function
@@ -19,7 +22,9 @@ __a_barrier_oldkuser:
 	mov pc,ip
 	pop {r0,r1,r2,r3,ip,lr}
 	bx lr
+#endif
 
+.section        .text.__a_barrier_v6,"ax",%progbits
 .global __a_barrier_v6
 .hidden __a_barrier_v6
 .type __a_barrier_v6,%function
@@ -28,6 +33,7 @@ __a_barrier_v6:
 	mcr p15,0,r0,c7,c10,5
 	bx lr
 
+.section        .text.__a_barrier_v7,"ax",%progbits
 .global __a_barrier_v7
 .hidden __a_barrier_v7
 .type __a_barrier_v7,%function
@@ -36,6 +42,7 @@ __a_barrier_v7:
 	dmb ish
 	bx lr
 
+.section        .text.__a_cas_dummy,"ax",%progbits
 .global __a_cas_dummy
 .hidden __a_cas_dummy
 .type __a_cas_dummy,%function
@@ -43,9 +50,12 @@ __a_cas_dummy:
 	mov r3,r0
 	ldr r0,[r2]
 	subs r0,r3,r0
-	streq r1,[r2]
+        bne .LBB0_0
+	str r1,[r2]
+.LBB0_0:
 	bx lr
 
+.section        .text.__a_cas_v6,"ax",%progbits
 .global __a_cas_v6
 .hidden __a_cas_v6
 .type __a_cas_v6,%function
@@ -55,12 +65,15 @@ __a_cas_v6:
 	mcr p15,0,r0,c7,c10,5
 1:	ldrex r0,[r2]
 	subs r0,r3,r0
-	strexeq r0,r1,[r2]
-	teqeq r0,#1
-	beq 1b
+        bne .LBB0_1
+	strex r0,r1,[r2]
+	teq r0,#1
+	b 1b
+.LBB0_1:
 	mcr p15,0,r0,c7,c10,5
 	bx lr
 
+.section        .text.__a_cas_v7,"ax",%progbits
 .global __a_cas_v7
 .hidden __a_cas_v7
 .type __a_cas_v7,%function
@@ -70,12 +83,15 @@ __a_cas_v7:
 	dmb ish
 1:	ldrex r0,[r2]
 	subs r0,r3,r0
-	strexeq r0,r1,[r2]
-	teqeq r0,#1
-	beq 1b
+        bne .LBB0_2
+	strex r0,r1,[r2]
+	teq r0,#1
+	b 1b
+.LBB0_2:
 	dmb ish
 	bx lr
 
+.section        .text.__a_gettp_cp15,"ax",%progbits
 .global __a_gettp_cp15
 .hidden __a_gettp_cp15
 .type __a_gettp_cp15,%function
@@ -84,7 +100,7 @@ __a_gettp_cp15:
 	bx lr
 
 /* Tag this file with minimum ISA level so as not to affect linking. */
-.object_arch armv4t
+.arch armv4t
 .eabi_attribute 6,2
 
 .data

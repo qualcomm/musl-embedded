@@ -1,6 +1,9 @@
 .syntax unified
 .text
 .global __clone
+#ifdef VISIBILITY_HIDDEN
+.hidden __clone
+#endif
 .type   __clone,%function
 __clone:
 	stmfd sp!,{r4,r5,r6,r7}

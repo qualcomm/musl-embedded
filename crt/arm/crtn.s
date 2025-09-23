@@ -1,9 +1,9 @@
 .syntax unified
 
-.section .init
+.section .init, "ax", %progbits
 	pop {r0,lr}
 	bx lr
 
-.section .fini
+.section .fini, "ax", %progbits
 	pop {r0,lr}
 	bx lr

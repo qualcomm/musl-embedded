@@ -30,7 +30,11 @@ struct __libc {
 };
 
 #ifndef PAGE_SIZE
+#ifdef __QUIC_BAREMETAL
+#define PAGE_SIZE 1
+#else
 #define PAGE_SIZE libc.page_size
+#endif
 #endif
 
 #ifdef __PIC__
@@ -51,8 +55,14 @@ void __lock(volatile int *) ATTR_LIBC_VISIBILITY;
 void __unlock(volatile int *) ATTR_LIBC_VISIBILITY;
 int __lockfile(FILE *) ATTR_LIBC_VISIBILITY;
 void __unlockfile(FILE *) ATTR_LIBC_VISIBILITY;
+
+#ifndef __QUIC_BAREMETAL
 #define LOCK(x) __lock(x)
 #define UNLOCK(x) __unlock(x)
+#else
+#define LOCK(x)
+#define UNLOCK(x)
+#endif
 
 void __synccall(void (*)(void *), void *);
 int __setxid(int, int, int, int);

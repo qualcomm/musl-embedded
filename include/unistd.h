@@ -15,10 +15,12 @@ extern "C" {
 #define SEEK_CUR 1
 #define SEEK_END 2
 
+#ifndef NULL
 #ifdef __cplusplus
 #define NULL 0L
 #else
 #define NULL ((void*)0)
+#endif
 #endif
 
 #define __NEED_size_t

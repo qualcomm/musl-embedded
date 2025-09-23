@@ -45,8 +45,10 @@
  */
 
 .syntax unified
-
 .global memcpy
+#ifdef VISIBILITY_HIDDEN
+.hidden memcpy
+#endif
 .type memcpy,%function
 memcpy:
 	/* The stack must always be 64-bits aligned to be compliant with the
@@ -241,7 +243,8 @@ non_congruent:
 	beq     2f
 	ldr     r5, [r1], #4
 	sub     r2, r2, #4
-	orr     r4, r3, r5,             lsl lr
+	lsl     r4, r5, lr
+	orr     r4, r3, r4
 	mov     r3, r5,                 lsr r12
 	str     r4, [r0], #4
 	cmp     r2, #4
@@ -348,7 +351,8 @@ less_than_thirtytwo:
 
 1:      ldr     r5, [r1], #4
 	sub     r2, r2, #4
-	orr     r4, r3, r5,             lsl lr
+	lsl     r4, r5, lr
+	orr     r4, r3, r4
 	mov     r3,     r5,                     lsr r12
 	str     r4, [r0], #4
 	cmp     r2, #4

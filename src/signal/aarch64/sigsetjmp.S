@@ -1,23 +1,23 @@
-.syntax unified
+#ifndef __QUIC_BAREMETAL
 .global sigsetjmp
 .global __sigsetjmp
 .type sigsetjmp,%function
 .type __sigsetjmp,%function
 sigsetjmp:
 __sigsetjmp:
-	tst r1,r1
-	beq setjmp
+	cbz x1,setjmp
 
-	str lr,[r0,#256]
-	str r4,[r0,#260+8]
-	mov r4,r0
+	str x30,[x0,#176]
+	str x19,[x0,#176+8+8]
+	mov x19,x0
 
 	bl setjmp
 
-	mov r1,r0
-	mov r0,r4
-	ldr lr,[r0,#256]
-	ldr r4,[r0,#260+8]
+	mov w1,w0
+	mov x0,x19
+	ldr x30,[x0,#176]
+	ldr x19,[x0,#176+8+8]
 
 .hidden __sigsetjmp_tail
 	b __sigsetjmp_tail
+#endif

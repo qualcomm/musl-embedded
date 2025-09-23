@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdint.h>
+#include "libc.h"
 
 void *memset(void *dest, int c, size_t n)
 {
@@ -88,3 +89,5 @@ void *memset(void *dest, int c, size_t n)
 
 	return dest;
 }
+
+weak_alias(memset, explicit_memset);

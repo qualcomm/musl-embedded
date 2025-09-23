@@ -4,10 +4,12 @@
 
 unsigned long getauxval(unsigned long item)
 {
+#ifndef __QUIC_BAREMETAL
 	size_t *auxv = libc.auxv;
 	if (item == AT_SECURE) return libc.secure;
 	for (; *auxv; auxv+=2)
 		if (*auxv==item) return auxv[1];
 	errno = ENOENT;
+#endif
 	return 0;
 }

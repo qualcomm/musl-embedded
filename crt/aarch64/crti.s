@@ -1,11 +1,11 @@
-.section .init
+.section .init, "ax", %progbits
 .global _init
 .type _init,%function
 _init:
 	stp x29,x30,[sp,-16]!
 	mov x29,sp
 
-.section .fini
+.section .fini, "ax", %progbits
 .global _fini
 .type _fini,%function
 _fini:

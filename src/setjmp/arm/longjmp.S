@@ -1,17 +1,41 @@
 .syntax unified
 .global _longjmp
 .global longjmp
+#ifdef VISIBILITY_HIDDEN
+.hidden _longjmp
+.hidden longjmp
+#endif
 .type _longjmp,%function
 .type longjmp,%function
 _longjmp:
 longjmp:
+	ldmia r0!, {v1,v2,v3,v4}
+	ldmia r0!, {r2, r3}
+	mov v5, r2
+	mov v6, r3
+	ldmia r0!, {r2,r3}
+	mov sl, r2
+	mov fp, r3
+	ldmia r0!, {r2, r3}
+	mov sp, r2
+	mov lr, r3
 	mov ip,r0
-	movs r0,r1
-	moveq r0,#1
-	ldmia ip!, {v1,v2,v3,v4,v5,v6,sl,fp}
-	ldmia ip!, {r2,lr}
-	mov sp,r2
+  movs r0, r1
+  bne 1f
+  movs r0, #1
+1:
 
+#if defined(__QUIC_BAREMETAL)
+  // Ignore IWMMXT arch and FPA.
+ #if defined(__ARM_PCS_VFP)
+	.fpu vfp
+	vldmia ip!, {d8-d15}
+	.fpu softvfp
+	.eabi_attribute 10, 0
+	.eabi_attribute 27, 0
+ #endif
+  bx lr
+#else //For Linux, use HWCAP
 	adr r1,1f
 	ldr r2,1f
 	ldr r1,[r1,r2]
@@ -39,5 +63,5 @@ longjmp:
 3:	bx lr
 
 .hidden __hwcap
-.align 2
 1:	.word __hwcap-1b
+#endif

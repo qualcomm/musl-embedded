@@ -11,7 +11,7 @@ struct cookie {
 
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
-static size_t sn_write(FILE *f, const unsigned char *s, size_t l)
+size_t sn_write(FILE *f, const unsigned char *s, size_t l)
 {
 	struct cookie *c = f->cookie;
 	size_t k = MIN(c->n, f->wpos - f->wbase);
@@ -32,7 +32,11 @@ static size_t sn_write(FILE *f, const unsigned char *s, size_t l)
 	return l;
 }
 
+#if defined(__arm__)
+int vsnprintf_full(char *restrict s, size_t n, const char *restrict fmt, va_list ap)
+#else
 int vsnprintf(char *restrict s, size_t n, const char *restrict fmt, va_list ap)
+#endif
 {
 	unsigned char buf[1];
 	char dummy[1];

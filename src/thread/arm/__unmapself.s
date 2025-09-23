@@ -1,6 +1,9 @@
 .syntax unified
 .text
 .global __unmapself
+#ifdef VISIBILITY_HIDDEN
+.hidden __unmapself
+#endif
 .type   __unmapself,%function
 __unmapself:
 	mov r7,#91

@@ -74,3 +74,27 @@ static inline long __syscall6(long n, long a, long b, long c, long d, long e, lo
 #define VDSO_USEFUL
 #define VDSO_CGT_SYM "__kernel_clock_gettime"
 #define VDSO_CGT_VER "LINUX_2.6.39"
+
+
+// ---- Begin Qualcomm-Specific ----
+#ifdef __QUIC_AARCH64_SEMIHOST
+/* https://developer.arm.com/docs/100073/latest
+ * Arm Compiler Arm C and C++ Libraries and Floating-Point Support User Guide Version 6.12
+ * Section 1.8.2: Using the C and C++ libraries with an application in a semihosting environment
+ * For semi-hosting, use 0xF000 for AArch64
+ */
+static __attribute__((always_inline))
+long do_semihost_call(long opcode, void * params) {
+  register long x0 __asm__("x0") = opcode;
+  register void *x1 __asm__("x1") = params;
+  __asm__ (
+      "hlt 0xF000 \n"
+       : "+r" (x0), "+r" (x1)
+       :
+       : "x2", "x3", "x4", "x5", "x6", "x7", "x16", "x17", "lr", "memory", "cc"
+      );
+  return x0;
+
+}
+#endif
+// ---- End Qualcomm-Specific ----

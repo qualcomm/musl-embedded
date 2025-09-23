@@ -1,0 +1,3 @@
+# should be run from MUSL source top directory
+# ./configure --disable-wrapper --quic-arm-baremetal --disable-visibility CROSS_COMPILE="llvm-" CC="clang --target=arm-none-eabi -fuse-ld=eld" CFLAGS="-mfloat-abi=softfp -mcpu=krait -Osize -mthumb -mfpu=vfp -mno-unaligned-access -mllvm -enable-android-compat -fno-vectorize-loops -fPIC -fvisibility=hidden -DVISIBILITY_HIDDEN -fno-rounding-math" "$@"
+./configure --disable-wrapper --quic-arm-baremetal --disable-visibility CROSS_COMPILE="llvm-" CC="clang --target=arm-none-eabi -fuse-ld=eld" CFLAGS="-mfloat-abi=softfp -mcpu=krait -mthumb -mfpu=vfp -mno-unaligned-access -fPIC -fvisibility=hidden -DVISIBILITY_HIDDEN -fno-rounding-math" "$@"

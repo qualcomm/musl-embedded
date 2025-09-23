@@ -359,3 +359,25 @@
 #define __ARM_NR_usr32		0x0f0004
 #define __ARM_NR_set_tls	0x0f0005
 
+#define ARM_SEMIHOST_Open            0x01
+#define ARM_SEMIHOST_Close           0x02
+#define ARM_SEMIHOST_WriteC          0x03
+#define ARM_SEMIHOST_Write0          0x04
+#define ARM_SEMIHOST_Write           0x05
+#define ARM_SEMIHOST_Read            0x06
+#define ARM_SEMIHOST_ReadC           0x07
+#define ARM_SEMIHOST_IsTTY           0x09
+#define ARM_SEMIHOST_Seek            0x0A
+#define ARM_SEMIHOST_FLen            0x0C
+#define ARM_SEMIHOST_TmpNam          0x0D
+#define ARM_SEMIHOST_Remove          0x0E
+#define ARM_SEMIHOST_Rename          0x0F
+#define ARM_SEMIHOST_Clock           0x10
+#define ARM_SEMIHOST_Time            0x11
+#define ARM_SEMIHOST_System          0x12
+#define ARM_SEMIHOST_Errno           0x13
+#define ARM_SEMIHOST_GetCmdLine      0x15
+#define ARM_SEMIHOST_HeapInfo        0x16
+#define ARM_SEMIHOST_EnterSVC        0x17
+#define ARM_SEMIHOST_ReportException 0x18
+

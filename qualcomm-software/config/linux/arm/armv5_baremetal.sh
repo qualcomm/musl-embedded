@@ -1,0 +1,2 @@
+# should be run from MUSL source top directory
+./configure --disable-wrapper --disable-shared --disable-visibility  --quic-arm-baremetal --quic-arm-armv6m-armv5 --quic-arm-nofp CROSS_COMPILE="llvm-" CC="clang --target=arm-none-eabi -fuse-ld=eld" CFLAGS="-mcpu=arm926ej-s -mfloat-abi=soft -Osize -marm -mno-unaligned-access -mllvm -enable-android-compat -fshort-enums -fno-short-wchar -ffunction-sections -fdata-sections -Wa,-mimplicit-it=always -fno-integrated-as -fvisibility=hidden -DVISIBILITY_HIDDEN -fno-rounding-math" --enable-optimize=stdio "$@"

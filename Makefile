@@ -43,7 +43,7 @@ LIBCC = -lgcc
 CPPFLAGS =
 CFLAGS =
 CFLAGS_AUTO = -Os -pipe
-CFLAGS_C99FSE = -std=c99 -ffreestanding -nostdinc 
+CFLAGS_C99FSE = -std=c99 -ffreestanding -nostdinc
 
 CFLAGS_ALL = $(CFLAGS_C99FSE)
 CFLAGS_ALL += -D_XOPEN_SOURCE=700 -I$(srcdir)/arch/$(ARCH) -I$(srcdir)/arch/generic -Iobj/src/internal -I$(srcdir)/src/internal -Iobj/include -I$(srcdir)/include
@@ -83,6 +83,39 @@ all:
 	@exit 1
 
 else
+
+# Qualcomm-specific code - start
+ifeq ($(QUIC_ARM_ARMV6M_ARMV5),yes)
+CRT_LIBS := lib/crt1.o
+#These objs use asms that are not supported by cortex-m0.
+UNSUPPORTED := obj/crt/Scrt1.o \
+               obj/src/internal/arm/syscall.o \
+               obj/src/string/arm/memcpy_le.o \
+               obj/src/string/arm/memcpy.o \
+               obj/src/thread/arm/__unmapself.o \
+               obj/src/thread/arm/clone.o \
+               obj/src/thread/arm/syscall_cp.o
+ALL_OBJS += obj/src/string/memcpy.o
+ALL_OBJS := $(filter-out $(UNSUPPORTED), $(ALL_OBJS))
+endif
+
+ifeq ($(QUIC_ARM_NOFP),yes)
+# Use optimized memset.
+ALL_OBJS := $(filter-out obj/src/string/arm/memset.o, $(ALL_OBJS))
+ALL_OBJS := $(filter-out obj/src/string/arm/memset_fp_armv7.o, $(ALL_OBJS))
+else
+ALL_OBJS := $(filter-out obj/src/string/arm/memset.o, $(ALL_OBJS))
+ALL_OBJS := $(filter-out obj/src/string/arm/memset_nofp_armv7.o, $(ALL_OBJS))
+endif
+
+# Objs for math aarch64 are built from asms that utilize fp instructions. When
+# building for nofp build them from the generic implementations instead.
+ifeq ($(QUIC_AARCH64_NOFP),yes)
+ALL_OBJS := $(subst obj/src/math/aarch64/,obj/src/math/, $(ALL_OBJS))
+endif
+
+include build_variants.mk
+# Qualcomm-specific code - end
 
 all: $(ALL_LIBS) $(ALL_TOOLS)
 
@@ -144,6 +177,23 @@ ifeq ($(ADD_CFI),yes)
 else
 	AS_CMD = $(CC_CMD)
 endif
+
+# Qualcomm-specific code - start
+ifeq ($(ARCH),arm)
+ifeq ($(QUIC_ARM_BAREMETAL),yes)
+obj/crt/crt1.o : qualcomm-software/crt/arm/crt1_baremetal.s
+	$(AS_CMD)
+
+obj/crt/crt1_linux.o: qualcomm-software/crt/arm/crt1_linux.s
+	$(AS_CMD)
+
+CRT_OBJS += obj/crt/crt1_linux.o
+CRT_LIBS += lib/crt1_linux.o
+endif
+endif
+# Qualcomm-specific code - end
+
+
 
 obj/%.o: $(srcdir)/%.s
 	$(AS_CMD)

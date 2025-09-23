@@ -19,8 +19,13 @@ static inline pthread_t __pthread_self()
 static inline pthread_t __pthread_self()
 {
 	extern uintptr_t __attribute__((__visibility__("hidden"))) __a_gettp_ptr;
+#if __ARM_ARCH == 5
+       char *p;
+       __asm__ __volatile__ ( "bl __a_gettp\n\tmovs %0,r0" : "=r"(p) : : "cc", "r0", "lr" );
+#else
 	register uintptr_t p __asm__("r0");
 	__asm__ __volatile__ ( BLX " %1" : "=r"(p) : "r"(__a_gettp_ptr) : "cc", "lr" );
+#endif
 	return (void *)(p+8-sizeof(struct pthread));
 }
 

@@ -2,6 +2,7 @@
 // {
 // 	return a[1];
 // }
+.arch_extension fp
 .global __tlsdesc_static
 .hidden __tlsdesc_static
 .type __tlsdesc_static,@function

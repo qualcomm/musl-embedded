@@ -1,6 +1,12 @@
+.arch_extension fp
 .global __setjmp
 .global _setjmp
 .global setjmp
+#ifdef VISIBILITY_HIDDEN
+.hidden __setjmp
+.hidden _setjmp
+.hidden setjmp
+#endif
 .type __setjmp,@function
 .type _setjmp,@function
 .type setjmp,@function

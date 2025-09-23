@@ -1,3 +1,4 @@
+.arch_extension fp
 .global fegetround
 .type fegetround,%function
 fegetround:
