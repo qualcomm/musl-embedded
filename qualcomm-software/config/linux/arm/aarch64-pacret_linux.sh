@@ -1,3 +1,3 @@
 # should be run from MUSL source top directory
 # ./configure --disable-wrapper CROSS_COMPILE="llvm-" CC="clang --target=aarch64-linux-gnu -fuse-ld=eld" CFLAGS="-march=armv8.3a -mbranch-protection=pac-ret+leaf -O3 -mstrict-align -fno-vectorize-loops -fPIC -fno-rounding-math" LIBCC="$(clang -print-resource-dir)/lib/generic/libclang_rt.builtins-pacret-aarch64.a" "$@"
-./configure --disable-wrapper CROSS_COMPILE="llvm-" CC="clang --target=aarch64-linux-gnu -fuse-ld=eld" CFLAGS="-march=armv8.3a -mbranch-protection=pac-ret+leaf -O3 -mstrict-align -fPIC -fno-rounding-math" LIBCC="$(clang -print-resource-dir)/lib/generic/libclang_rt.builtins-pacret-aarch64.a" "$@"
+./configure --disable-wrapper CROSS_COMPILE="llvm-" CC="clang --target=aarch64-linux-gnu -fuse-ld=eld" CFLAGS="-march=armv8.3a -mbranch-protection=pac-ret+leaf -O3 -mstrict-align -fPIC -fno-rounding-math" LIBCC="$(clang -print-resource-dir)/lib/linux/libclang_rt.builtins-pacret-aarch64.a" "$@"
