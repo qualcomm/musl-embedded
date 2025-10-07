@@ -1,6 +1,6 @@
 name: Qualcomm Preflight Checks
 on:
-  pull_request:
+  pull_request_target:
     branches: [ "njjetha" ]
   push:
     branches: [ "njjetha" ]
