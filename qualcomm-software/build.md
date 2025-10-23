@@ -14,6 +14,11 @@ refer to [LLVM's documentation](https://llvm.org/docs/GettingStarted.html) to
 build clang, compiler-rt, and LLVM's binutils and
 [eld's documentation](https://github.com/qualcomm/eld) to build eld.
 
+Alternatively, you can refer to the
+[CPULLVM toolchain project](https://github.com/qualcomm/cpullvm-toolchain)
+which provides guidance on building MUSL variants as part of a complete
+CPULLVM toolchain build.
+
 ## Building using musl-embedded scripts
 
 To build a variant in [qualcomm-software/config/linux/arm](config/linux/arm/), the scripts
