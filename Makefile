@@ -189,6 +189,9 @@ obj/crt/crt1_linux.o: qualcomm-software/crt/arm/crt1_linux.s
 
 CRT_OBJS += obj/crt/crt1_linux.o
 CRT_LIBS += lib/crt1_linux.o
+
+EXCLUDED := obj/src/linux/copy_file_range.o
+ALL_OBJS := $(filter-out $(EXCLUDED), $(ALL_OBJS))
 endif
 endif
 # Qualcomm-specific code - end
