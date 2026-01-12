@@ -190,7 +190,9 @@ char *get_current_dir_name(void);
 int syncfs(int);
 int euidaccess(const char *, int);
 int eaccess(const char *, int);
+#ifndef __QUIC_BAREMETAL
 ssize_t copy_file_range(int, off_t *, int, off_t *, size_t, unsigned);
+#endif // __QUIC_BAREMETAL
 #endif
 
 #if defined(_LARGEFILE64_SOURCE) || defined(_GNU_SOURCE)
