@@ -862,5 +862,8 @@ test "x$pic_default" = xyes && echo 'AOBJS = $(LOBJS)'
 exec 1>&3 3>&-
 
 test "$srcdir" = "." || ln -sf $srcdir/Makefile .
+# Qualcomm-specific code start
+test "$srcdir" = "." || ln -sf $srcdir/build_variants.mk .
+# Qualcomm-specific code end
 
 printf "done\n"

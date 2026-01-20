@@ -181,10 +181,10 @@ endif
 # Qualcomm-specific code - start
 ifeq ($(ARCH),arm)
 ifeq ($(QUIC_ARM_BAREMETAL),yes)
-obj/crt/crt1.o : qualcomm-software/crt/arm/crt1_baremetal.s
+obj/crt/crt1.o : $(srcdir)/qualcomm-software/crt/arm/crt1_baremetal.s
 	$(AS_CMD)
 
-obj/crt/crt1_linux.o: qualcomm-software/crt/arm/crt1_linux.s
+obj/crt/crt1_linux.o: $(srcdir)/qualcomm-software/crt/arm/crt1_linux.s
 	$(AS_CMD)
 
 CRT_OBJS += obj/crt/crt1_linux.o
