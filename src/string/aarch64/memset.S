@@ -51,6 +51,9 @@
 .type memset,%function
 memset:
     .cfi_startproc
+#ifdef __QUIC_BTI
+    bti c
+#endif
     mov	dst, dstin		/* Preserve return value.  */
     ands	A_lw, val, #255
     b.eq	.Lzero_mem  /* Use DC ZVA instruction if the val = 0 */
