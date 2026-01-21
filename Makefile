@@ -114,6 +114,10 @@ ifeq ($(QUIC_AARCH64_NOFP),yes)
 ALL_OBJS := $(subst obj/src/math/aarch64/,obj/src/math/, $(ALL_OBJS))
 endif
 
+ifeq ($(QUIC_AARCH64_MARK_BTI),yes)
+ASM_SRCS = src/string/aarch64/memcpy.S src/string/aarch64/memset.S
+$(ASM_SRCS:%.S=obj/%.o) $(ASM_SRCS:%.S=obj/%.lo): CFLAGS_ALL += -mmark-bti-property
+endif
 include build_variants.mk
 # Qualcomm-specific code - end
 

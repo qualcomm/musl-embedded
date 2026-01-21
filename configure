@@ -41,6 +41,7 @@ Qualcomm-specific options:
   --quic-arm-armv6m-armv5     build for ARMV6M or ARMV5 architectures [disabled]
   --quic-arm-nofp             use optimized no floating point memset [disabled]
   --quic-aarch64-nofp         build for aarch64 with no floating point [disabled]
+  --quic-aarch64-mark-bti     mark bti property for assembly source files [disabled]
   --quic-libc-standalone      build standalone libc [disabled]
   --quic-baremetal-uselock    build for baremetal with locking/unlocking [disabled]
 
@@ -191,6 +192,7 @@ case "$arg" in
 --quic-arm-armv6m-armv5|--quic-arm-armv6m-armv5=yes) quic_arm_armv6m_armv5=yes ;;
 --quic-arm-nofp|--quic-arm-nofp=yes) quic_arm_nofp=yes ;;
 --quic-aarch64-nofp|--quic-aarch64-nofp=yes) quic_aarch64_nofp=yes ;;
+--quic-aarch64-mark-bti|--quic-aarch64-mark-bti=yes) quic_aarch64_mark_bti=yes ;;
 --quic-libc-standalone|--quic-libc-standalone=yes) quic_libc_standalone=yes ;;
 --quic-baremetal-uselock|--quic-baremetal-uselock=yes) quic_baremetal_uselock=yes ;;
 --enable-*|--disable-*|--with-*|--without-*|--*dir=*) ;;
@@ -707,6 +709,9 @@ fi
 if test "x$quic_aarch64_nofp" = xyes ; then
 QUIC_AARCH64_NOFP=yes
 fi
+if test "x$quic_aarch64_mark_bti" = xyes ; then
+QUIC_AARCH64_MARK_BTI=yes
+fi
 if test "x$quic_baremetal_uselock" = xyes ; then
 CFLAGS_AUTO="$CFLAGS_AUTO -D__QUIC_BAREMETAL_USELOCK"
 CFLAGS_AUTO="${CFLAGS_AUTO# }"
@@ -849,6 +854,7 @@ QUIC_ARM_BAREMETAL = $QUIC_ARM_BAREMETAL
 QUIC_ARM_ARMV6M_ARMV5 = $QUIC_ARM_ARMV6M_ARMV5
 QUIC_ARM_NOFP = $QUIC_ARM_NOFP
 QUIC_AARCH64_NOFP = $QUIC_AARCH64_NOFP
+QUIC_AARCH64_MARK_BTI = $QUIC_AARCH64_MARK_BTI
 QUIC_BAREMETAL_USELOCK = $QUIC_BAREMETAL_USELOCK
 QUIC_LIBC_STANDALONE = $QUIC_LIBC_STANDALONE
 QUIC_VARIANTS = $QUIC_VARIANTS
