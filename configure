@@ -710,6 +710,8 @@ if test "x$quic_aarch64_nofp" = xyes ; then
 QUIC_AARCH64_NOFP=yes
 fi
 if test "x$quic_aarch64_mark_bti" = xyes ; then
+CFLAGS_AUTO="$CFLAGS_AUTO -D__QUIC_BTI"
+CFLAGS_AUTO="${CFLAGS_AUTO# }"
 QUIC_AARCH64_MARK_BTI=yes
 fi
 if test "x$quic_baremetal_uselock" = xyes ; then

@@ -58,6 +58,9 @@
 .type memcpy,%function
 memcpy:
     .cfi_startproc
+#ifdef __QUIC_BTI
+    bti c
+#endif
     add    srcend, src, count
     add    dstend, dstin, count
     cmp    count, 128
